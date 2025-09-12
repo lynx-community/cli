@@ -1,7 +1,8 @@
-package com.lynx.kotlinemptyproject
+package com.helloworld
 
 import android.app.Activity
 import android.os.Bundle
+import com.helloworld.providers.TemplateProvider
 import com.lynx.tasm.LynxView
 import com.lynx.tasm.LynxViewBuilder
 import com.lynx.tasm.TemplateData
@@ -19,7 +20,7 @@ class DebugActivity : Activity() {
 
     private fun buildLynxView(): LynxView {
         val viewBuilder = LynxViewBuilder()
-        viewBuilder.setTemplateProvider(DemoTemplateProvider(this))
+        viewBuilder.setTemplateProvider(TemplateProvider(this))
         return viewBuilder.build(this)
     }
 }

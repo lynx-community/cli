@@ -1,8 +1,10 @@
-package com.lynx.kotlinemptyproject
+package com.helloworld
 
 import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
+import com.helloworld.providers.GenericResourceFetcher
+import com.helloworld.providers.TemplateProvider
+import com.lynx.tasm.LynxBooleanOption
 import com.lynx.tasm.LynxView
 import com.lynx.tasm.LynxViewBuilder
 import com.lynx.xelement.XElementBehaviors
@@ -10,20 +12,28 @@ import com.lynx.xelement.XElementBehaviors
 class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        var uri = ""
+        uri = if (BuildConfig.DEBUG == true) {
+            "http://10.0.2.2:3000/main.lynx.bundle?fullscreen=true"
+        } else {
+            "main.lynx.bundle"
+        }
+
         val lynxView: LynxView = buildLynxView()
         setContentView(lynxView)
 
-        val uri = "main.lynx.bundle";
         lynxView.renderTemplateUrl(uri, "")
-
-        // open switch page
-        // startActivity(Intent(this, SwitchActivity::class.java));
     }
-
+    
     private fun buildLynxView(): LynxView {
         val viewBuilder: LynxViewBuilder = LynxViewBuilder()
         viewBuilder.addBehaviors(XElementBehaviors().create())
-        viewBuilder.setTemplateProvider(DemoTemplateProvider(this))
+
+        viewBuilder.setTemplateProvider(TemplateProvider(this))
+        viewBuilder.isEnableGenericResourceFetcher = LynxBooleanOption.TRUE
+        viewBuilder.setGenericResourceFetcher(GenericResourceFetcher())
+
         return viewBuilder.build(this)
     }
 }

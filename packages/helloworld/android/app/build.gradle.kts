@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.lynx.kotlinemptyproject"
+    namespace = "com.helloworld"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.lynx.kotlinemptyproject"
+        applicationId = "com.helloworld"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -20,13 +20,27 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("release-key.keystore")
+            storePassword = "release"
+            keyAlias = "release-key-alias"
+            keyPassword = "release-key-password"
+        }
+    }
+
     buildTypes {
+        debug {
+            isDebuggable = true
+            applicationIdSuffix = ".debug"
+        }
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
@@ -37,6 +51,7 @@ android {
         jvmTarget = "1.8"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     composeOptions {
@@ -66,6 +81,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation("com.squareup.retrofit2:retrofit:2.7.0")
 
     // lynx dependencies
     implementation("org.lynxsdk.lynx:lynx:3.4.1")

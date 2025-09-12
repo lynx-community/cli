@@ -1,4 +1,4 @@
-package com.lynx.kotlinemptyproject.ui.theme
+package com.helloworld.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
