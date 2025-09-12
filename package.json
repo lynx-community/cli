@@ -1,0 +1,41 @@
+{
+  "name": "lynx-cli",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Lynx CLI monorepo",
+  "author": "",
+  "license": "ISC",
+  "main": "index.js",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "test": "vitest run",
+    "e2e": "pnpm -r run e2e",
+    "lint": "eslint .",
+    "prettier": "prettier --write .",
+    "typecheck": "tsc --noEmit",
+    "watch": "pnpm --filter='./packages/**' -r --parallel --stream run dev",
+    "dev": "pnpm --filter='./packages/**' -r --parallel --stream run dev",
+    "validate": "pnpm typecheck && pnpm lint && pnpm test"
+  },
+  "dependencies": {
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.5",
+    "@eslint/js": "^9.33.0",
+    "@types/node": "^18.19.122",
+    "@typescript-eslint/eslint-plugin": "^8.39.0",
+    "@typescript-eslint/parser": "^8.39.0",
+    "@typescript-eslint/utils": "^8.39.0",
+    "eslint": "^9.33.0",
+    "eslint-config-prettier": "^9.1.2",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "fast-glob": "^3.3.3",
+    "prettier": "^3.6.2",
+    "typescript": "5.9.2",
+    "typescript-eslint": "^8.39.0",
+    "vitest": "^3.2.4"
+  },
+  "keywords": [],
+  "packageManager": "pnpm@10.11.0"
+}
