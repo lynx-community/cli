@@ -28,9 +28,17 @@ class GenericResourceFetcher : LynxGenericResourceFetcher() {
         }
 
         val retrofit = Retrofit.Builder().baseUrl("https://example.com/").build()
-        val templateApi: TemplateApi = retrofit.create<TemplateApi>(TemplateApi::class.java)
-        val call: Call<ResponseBody?>? = templateApi.getTemplate(request.url)
-        call?.enqueue(object : Callback<ResponseBody?> {
+        val templateApi: TemplateApi = retrofit.create(TemplateApi::class.java)
+
+        val call: Call<ResponseBody> = templateApi.getTemplate(request.url) ?: run {
+            callback.onResponse(
+                LynxResourceResponse.onFailed(Throwable("create call failed.")) as LynxResourceResponse<ByteArray?>?
+            )
+
+            return
+        }
+  
+        call.enqueue(object : Callback<ResponseBody?> {
             override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
                 try {
                     if (response.body() != null) {

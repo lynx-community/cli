@@ -12,7 +12,7 @@ import retrofit2.http.Url
 
 interface TemplateApi {
     @GET
-    fun getTemplate(@Url u: String?): Call<ResponseBody?>?
+    fun getTemplate(@Url u: String?): Call<ResponseBody>
 
     @GET
     fun get(@Url url: String?, @HeaderMap headers: Map<String?, String?>?): Call<ResponseBody?>?
