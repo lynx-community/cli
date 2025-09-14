@@ -1,4 +1,4 @@
-package com.lynx.kotlinemptyproject
+package com.helloworld
 
 import org.junit.Test
 
