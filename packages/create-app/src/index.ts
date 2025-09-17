@@ -139,20 +139,9 @@ async function renameTemplateFilesAndDirs(
 
   await renameJavaPackageDirectories(projectPath, javaName);
 
-  const items = (await getItemsToRename(projectPath))
-    .filter((item) => {
-      const basename = path.basename(item);
-      return (
-        basename.includes('HelloWorld') &&
-        ![
-          'build.gradle.kts',
-          'settings.gradle.kts',
-          'gradle.properties',
-        ].includes(basename) &&
-        !basename.startsWith('gradlew')
-      );
-    })
-    .sort((a, b) => b.split(path.sep).length - a.split(path.sep).length);
+  const items = (await getItemsToRename(projectPath)).sort(
+    (a, b) => b.split(path.sep).length - a.split(path.sep).length,
+  );
 
   for (const itemPath of items) {
     const newName = path.basename(itemPath).replace(/HelloWorld/g, pascalName);
