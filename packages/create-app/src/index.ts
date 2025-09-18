@@ -287,7 +287,7 @@ async function gatherProjectInfo(
       options: [
         { value: 'ios', label: 'iOS' },
         { value: 'android', label: 'Android' },
-        { value: 'harmonyos', label: 'HarmonyOS' },
+        // { value: 'harmonyos', label: 'HarmonyOS' },
       ],
       initialValues: ['ios', 'android'],
       required: true,
