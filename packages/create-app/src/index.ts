@@ -234,8 +234,7 @@ export async function createApp(): Promise<void> {
           const packageManager = detectPackageManager();
           const installCmd =
             packageManager === 'yarn' ? 'yarn' : `${packageManager} install`;
-          const devCmd =
-            packageManager === 'yarn' ? 'yarn dev' : `${packageManager} dev`;
+          const devCmd = `${packageManager} dev`;
 
           p.outro(pc.cyan('Happy hacking!'));
           console.log(pc.white(`Next steps:`));
