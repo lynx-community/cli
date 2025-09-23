@@ -5,3 +5,4 @@ This repository contains the source code for the Lynx CLI tool, a command-line i
 ## Packages
 
 - `helloworld` - Native project template to scaffold a new Lynx project.
+- `create-app` → CLI to create new apps.
