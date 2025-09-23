@@ -1,6 +1,6 @@
 {
   "name": "create-lynxjs-app",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "CLI tool to scaffold new Lynx applications",
   "author": "",
   "license": "ISC",

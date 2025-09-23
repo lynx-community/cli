@@ -4,7 +4,7 @@ A CLI tool to scaffold new Lynx applications.
 
 ## Usage
 
-### Install and run directly with pnpm
+### Create new app
 
 ```bash
 npx create-lynxjs-app@latest
