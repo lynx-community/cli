@@ -7,6 +7,7 @@ import gradient from 'gradient-string';
 import path from 'path';
 import pc from 'picocolors';
 import { fileURLToPath } from 'url';
+import { setupTailwind } from './tailwind-setup.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,6 +31,7 @@ interface AppConfig {
   name: string;
   platforms: string[];
   directory: string;
+  useTailwind: boolean;
 }
 
 function toPascalCase(str: string): string {
@@ -300,10 +302,20 @@ async function gatherProjectInfo(
     platforms = platformsResult as string[];
   }
 
+  const tailwindResult = await p.confirm({
+    message: 'Do you want to use Tailwind CSS?',
+    initialValue: false,
+  });
+
+  if (p.isCancel(tailwindResult)) {
+    throw new Error('cancelled');
+  }
+
   return {
     name: name as string,
     platforms: platforms as string[],
     directory: options?.directory || process.cwd(),
+    useTailwind: tailwindResult,
   };
 }
 
@@ -337,6 +349,11 @@ async function scaffoldProject(config: AppConfig): Promise<void> {
   await renameTemplateFilesAndDirs(targetPath, config.name);
 
   await cleanupUnselectedPlatforms(targetPath, config.platforms);
+
+  if (config.useTailwind) {
+    spinner.message('Setting up Tailwind CSS...');
+    await setupTailwind(targetPath);
+  }
 
   spinner.stop('Project created successfully!');
 }
