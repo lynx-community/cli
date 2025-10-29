@@ -10,13 +10,10 @@
   },
   "files": [
     "bin.js",
-    "dist/**/*",
-    "templates/**/*"
+    "dist/**/*"
   ],
   "scripts": {
-    "prebuild": "npm run copy-templates",
     "build": "tsc",
-    "copy-templates": "rm -rf templates && mkdir -p templates && rsync -av --exclude='node_modules' --exclude='dist' --exclude='.git' --exclude='apple/HelloWorld.xcodeproj/xcuserdata' --exclude='apple/HelloWorld.xcworkspace/xcuserdata' --exclude='android/app/build' --exclude='android/.gradle' --exclude='Pods' --exclude='package-lock.json' ../helloworld/ templates/helloworld/",
     "dev": "tsc --watch",
     "watch": "tsc --watch",
     "lint": "eslint src/",

@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
+import { execSync } from 'node:child_process';
+import path from 'node:path';
 import * as p from '@clack/prompts';
 import { Command } from 'commander';
 import fs from 'fs-extra';
 import gradient from 'gradient-string';
-import path from 'path';
 import pc from 'picocolors';
-import { fileURLToPath } from 'url';
+import { fetchGitHubFolders } from './utils.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const repoUrl = 'https://github.com/lynx-community/cli.git';
 
 function detectPackageManager(): string {
   const userAgent = process.env.npm_config_user_agent || '';
@@ -30,6 +30,15 @@ interface AppConfig {
   name: string;
   platforms: string[];
   directory: string;
+  useTailwind: boolean;
+  useGit: boolean;
+}
+
+interface CLIOptions {
+  platforms?: string[];
+  directory?: string;
+  useTailwind?: boolean;
+  useGit?: boolean;
 }
 
 function toPascalCase(str: string): string {
@@ -221,43 +230,40 @@ export async function createApp(): Promise<void> {
     .version('0.1.0')
     .argument('[project-name]', 'Name of the project')
     .option('-p, --platforms <platforms...>', 'Platforms to include')
+    .option('-t, --tailwind', 'Use Tailwind CSS')
+    .option('-g, --git', 'Initialize Git repository')
     .option('-d, --directory <directory>', 'Target directory')
-    .action(
-      async (
-        projectName?: string,
-        options?: { platforms?: string[]; directory?: string },
-      ) => {
-        try {
-          const config = await gatherProjectInfo(projectName, options);
-          await scaffoldProject(config);
+    .action(async (projectName?: string, options?: CLIOptions) => {
+      try {
+        const config = await gatherProjectInfo(projectName, options);
+        await scaffoldProject(config);
 
-          const packageManager = detectPackageManager();
-          const installCmd =
-            packageManager === 'yarn' ? 'yarn' : `${packageManager} install`;
-          const devCmd = `${packageManager} dev`;
+        const packageManager = detectPackageManager();
+        const installCmd =
+          packageManager === 'yarn' ? 'yarn' : `${packageManager} install`;
+        const devCmd = `${packageManager} dev`;
 
-          p.outro(pc.cyan('Happy hacking!'));
-          console.log(pc.white(`Next steps:`));
-          console.log(pc.gray(`  cd ${config.name}`));
-          console.log(pc.gray(`  ${installCmd}`));
-          console.log(pc.gray(`  ${devCmd}`));
-        } catch (error) {
-          if (error instanceof Error && error.message === 'cancelled') {
-            p.cancel('Operation cancelled.');
-            process.exit(0);
-          }
-          p.cancel(pc.red('❌ Error creating project: ' + error));
-          process.exit(1);
+        p.outro(pc.cyan('Happy hacking!'));
+        console.log(pc.white(`Next steps:`));
+        console.log(pc.gray(`  cd ${config.name}`));
+        console.log(pc.gray(`  ${installCmd}`));
+        console.log(pc.gray(`  ${devCmd}`));
+      } catch (error) {
+        if (error instanceof Error && error.message === 'cancelled') {
+          p.cancel('Operation cancelled.');
+          process.exit(0);
         }
-      },
-    );
+        p.cancel(pc.red('❌ Error creating project: ' + error));
+        process.exit(1);
+      }
+    });
 
   await program.parseAsync();
 }
 
 async function gatherProjectInfo(
   projectName?: string,
-  options?: { platforms?: string[]; directory?: string },
+  options?: CLIOptions,
 ): Promise<AppConfig> {
   let name = projectName;
   let platforms = options?.platforms;
@@ -300,62 +306,88 @@ async function gatherProjectInfo(
     platforms = platformsResult as string[];
   }
 
+  let useTailwind = options?.useTailwind;
+  if (useTailwind === undefined) {
+    const tailwindResult = await p.confirm({
+      message: 'Do you want to use Tailwind CSS?',
+      initialValue: false,
+    });
+
+    if (p.isCancel(tailwindResult)) {
+      throw new Error('cancelled');
+    }
+
+    useTailwind = tailwindResult;
+  }
+
+  let useGit = options?.useGit;
+  if (useGit === undefined) {
+    const gitResult = await p.confirm({
+      message: 'Do you want to initialize a Git repository?',
+      initialValue: false,
+    });
+
+    if (p.isCancel(gitResult)) {
+      throw new Error('cancelled');
+    }
+
+    useGit = gitResult;
+  }
+
   return {
     name: name as string,
     platforms: platforms as string[],
     directory: options?.directory || process.cwd(),
+    useTailwind,
+    useGit,
   };
 }
 
 async function scaffoldProject(config: AppConfig): Promise<void> {
   const targetPath = path.join(config.directory, config.name);
-
+  p.spinner({ indicator: 'dots' }).message('hello');
   const spinner = p.spinner();
   spinner.start(`Creating project in ${targetPath}`);
 
-  if (await fs.pathExists(targetPath)) {
-    spinner.stop();
-    throw new Error(`Directory ${targetPath} already exists`);
+  await fs.ensureDir(targetPath);
+  spinner.message('Adding platform-specific folders and templates...');
+  const fetchEntries: Array<{ repoPath: string; destPath?: string }> = [];
+
+  if (config.platforms.includes('android')) {
+    fetchEntries.push({
+      repoPath: 'packages/templates/android',
+      destPath: 'android',
+    });
   }
 
-  // Use bundled template from templates directory
-  const templatePath = path.join(__dirname, '../templates/helloworld');
-
-  if (!(await fs.pathExists(templatePath))) {
-    spinner.stop();
-    throw new Error(
-      `Template not found at ${templatePath}. Please ensure the helloworld template exists.`,
-    );
+  if (config.platforms.includes('ios')) {
+    fetchEntries.push({
+      repoPath: 'packages/templates/apple',
+      destPath: 'apple',
+    });
   }
 
-  spinner.message('Copying template files...');
-  await fs.copy(templatePath, targetPath);
+  fetchEntries.push({ repoPath: 'packages/templates/react', destPath: '' });
+
+  // Tailwind overlays react (so add it after react)
+  if (config.useTailwind) {
+    fetchEntries.push({
+      repoPath: 'packages/templates/react-tailwind',
+      destPath: '',
+    });
+  }
+
+  spinner.message('Fetching templates...');
+  await fetchGitHubFolders(repoUrl, fetchEntries, targetPath);
 
   spinner.message('Configuring project files...');
-
   await replaceTemplateStrings(targetPath, config.name);
   await renameTemplateFilesAndDirs(targetPath, config.name);
 
-  await cleanupUnselectedPlatforms(targetPath, config.platforms);
+  if (config.useGit) {
+    spinner.message('Initializing Git repository...');
+    execSync('git init', { cwd: targetPath, stdio: 'ignore' });
+  }
 
   spinner.stop('Project created successfully!');
-}
-
-async function cleanupUnselectedPlatforms(
-  targetPath: string,
-  selectedPlatforms: string[],
-): Promise<void> {
-  if (!selectedPlatforms.includes('ios')) {
-    const applePath = path.join(targetPath, 'apple');
-    if (await fs.pathExists(applePath)) {
-      await fs.remove(applePath);
-    }
-  }
-
-  if (!selectedPlatforms.includes('android')) {
-    const androidPath = path.join(targetPath, 'android');
-    if (await fs.pathExists(androidPath)) {
-      await fs.remove(androidPath);
-    }
-  }
 }

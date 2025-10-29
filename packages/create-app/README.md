@@ -17,5 +17,5 @@ npx create-lynxjs-app@latest
 bun install
 
 # Run dev server
-bun dev 
+bun dev
 ```
