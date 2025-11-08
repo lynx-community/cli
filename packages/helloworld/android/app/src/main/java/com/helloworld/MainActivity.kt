@@ -15,7 +15,8 @@ class MainActivity : Activity() {
 
         var uri = ""
         uri = if (BuildConfig.DEBUG == true) {
-            "http://10.0.2.2:3000/main.lynx.bundle?fullscreen=true"
+            val devServerHost = BuildConfig.DEV_SERVER_HOST
+            "http://$devServerHost:3000/main.lynx.bundle?fullscreen=true"
         } else {
             "main.lynx.bundle"
         }
