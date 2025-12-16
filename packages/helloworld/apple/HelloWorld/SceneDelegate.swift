@@ -27,8 +27,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     rootViewController.view = lynxView
     
 #if DEBUG
+    // Get dev server host from environment variable or use localhost as fallback
+    let devServerHost = ProcessInfo.processInfo.environment["DEV_SERVER_HOST"] ?? "localhost"
     lynxView.loadTemplate(
-      fromURL: "http://localhost:3000/main.lynx.bundle?fullscreen=true",
+      fromURL: "http://\(devServerHost):3000/main.lynx.bundle?fullscreen=true",
       initData: nil
     )
 #else

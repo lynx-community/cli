@@ -28,11 +28,12 @@ android {
             keyPassword = "release-key-password"
         }
     }
-
+    val devServerHost = project.findProperty("DEV_SERVER_HOST") as String? ?: "10.0.2.2"
     buildTypes {
         debug {
             isDebuggable = true
             applicationIdSuffix = ".debug"
+            buildConfigField("String", "DEV_SERVER_HOST", "\"$devServerHost\"")
         }
         release {
             isMinifyEnabled = true

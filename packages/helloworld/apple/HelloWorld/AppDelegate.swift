@@ -10,7 +10,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     // Register new modules with:
     // config.register(YourModuleName.self)
-    
+    lynxEnv.lynxDebugEnabled = true
+    // Enable Lynx DevTool
+    lynxEnv.devtoolEnabled = true
+    // Enable Lynx LogBox
+    lynxEnv.logBoxEnabled = true
     lynxEnv.prepareConfig(config)
     
     return true
