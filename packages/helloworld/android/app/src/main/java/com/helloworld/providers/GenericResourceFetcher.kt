@@ -20,9 +20,9 @@ class GenericResourceFetcher : LynxGenericResourceFetcher() {
     ) {
         if (request == null) {
             callback.onResponse(
-                LynxResourceResponse.onFailed(
+                LynxResourceResponse.onFailed<ByteArray>(
                     Throwable("request is null!")
-                ) as LynxResourceResponse<ByteArray?>?
+                )
             )
             return
         }
@@ -32,7 +32,7 @@ class GenericResourceFetcher : LynxGenericResourceFetcher() {
 
         val call: Call<ResponseBody> = templateApi.getTemplate(request.url) ?: run {
             callback.onResponse(
-                LynxResourceResponse.onFailed(Throwable("create call failed.")) as LynxResourceResponse<ByteArray?>?
+                LynxResourceResponse.onFailed<ByteArray>(Throwable("create call failed."))
             )
 
             return
@@ -49,17 +49,17 @@ class GenericResourceFetcher : LynxGenericResourceFetcher() {
                         )
                     } else {
                         callback.onResponse(
-                            LynxResourceResponse.onFailed(Throwable("response body is null.")) as LynxResourceResponse<ByteArray?>?
+                            LynxResourceResponse.onFailed<ByteArray>(Throwable("response body is null."))
                         )
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    callback.onResponse(LynxResourceResponse.onFailed(e) as LynxResourceResponse<ByteArray?>?)
+                    callback.onResponse(LynxResourceResponse.onFailed<ByteArray>(e))
                 }
             }
 
             override fun onFailure(call: Call<ResponseBody?>, throwable: Throwable) {
-                callback.onResponse(LynxResourceResponse.onFailed(throwable) as LynxResourceResponse<ByteArray?>?)
+                callback.onResponse(LynxResourceResponse.onFailed<ByteArray>(throwable))
             }
         })
     }
@@ -68,7 +68,7 @@ class GenericResourceFetcher : LynxGenericResourceFetcher() {
         request: LynxResourceRequest, callback: LynxResourceCallback<String>
     ) {
         callback.onResponse(
-            LynxResourceResponse.onFailed(Throwable("fetchResourcePath not supported.")) as LynxResourceResponse<String?>?
+            LynxResourceResponse.onFailed<String>(Throwable("fetchResourcePath not supported."))
         )
     }
 
